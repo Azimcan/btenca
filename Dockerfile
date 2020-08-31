@@ -1,24 +1,18 @@
-FROM ruby:2.7.1
+FROM ruby:latest
 
-RUN apt-get update && apt-get install -y \
-  curl \
-  build-essential \
-  libpq-dev &&\
-  curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
-  curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
-  echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
-  apt-get update && apt-get install -y nodejs yarn
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+RUN apt-get update -qq && apt-get install -y build-essential nodejs yarn
 
-RUN mkdir /app
-WORKDIR /app
+ENV APP_HOME /btenca
+RUN mkdir $APP_HOME
+WORKDIR $APP_HOME
 
-EXPOSE 3000
+RUN gem install bundler
+ADD Gemfile* $APP_HOME/
+RUN bundle install
 
-COPY Gemfile .
-COPY Gemfile.lock .
-RUN gem update bundler
-RUN bundle install --jobs 5
+ADD . $APP_HOME
+RUN yarn install --check-files
 
-COPY package.json .
-COPY yarn.lock .
-RUN yarn install
+CMD ["rails","server","-b","0.0.0.0"]
