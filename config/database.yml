@@ -1,16 +1,21 @@
-default: &default
+development:
+  adapter: sqlite3
+  database: db/btenca_development.sqlite3
+  pool: 5
+  timeout: 5000
+
+test:
+  adapter: sqlite3
+  database: db/btenca_test.sqlite3
+  pool: 5
+  timeout: 5000
+ 
+production:
   adapter: postgresql
   encoding: unicode
   host: db
   username: postgres
   password: password
   pool: 5
-
-development:
-  <<: *default
-  database: btenca_development
-
-
-test:
-  <<: *default
-  database: btenca_test
+  timeout: 5000
+  database: btenca_production
